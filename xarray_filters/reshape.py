@@ -253,8 +253,9 @@ def from_features(arr, axis=0):
             val = np.full(shp, np.nan)
             feature_idx = arr.indexes[arr.dims[0]]
             dim_coord_pairs = feature_idx.tolist()
+            row, col = coords[dims[0]], coords[dims[1]]
             for idx, dim_coord_pair in enumerate(dim_coord_pairs):
-                val[dim_coord_pair] = arr_val[idx]
+                val[(dim_coord_pair[0] == row), (dim_coord_pair[1] == col)] = arr_val[idx]
         else:
             val = arr_val.reshape(shp, order=RAVEL_ORDER)
         layer = simple_np_arr[j]
@@ -292,7 +293,8 @@ def to_xy_arrays(dset=None, y=None, features_layer=None,
     ykw = {col_dim: yname}
     X = arr.isel(**xkw)
     if y is None:
-        if yname in getattr(arr, arr.dims[-1], pd.Series([]).values):
+        col_names = getattr(arr, arr.dims[-1])
+        if yname in col_names.values:
             y = arr.isel(**ykw)
             if as_np:
                 y = y.values
